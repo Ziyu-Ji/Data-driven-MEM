@@ -11,7 +11,9 @@ library(grid)
 # data and function loaded
 source('Application_functions.R')
 load('../data/realdata.rdata')
-primid <- unique(data$surveycode)
+realdata <- imem_realdata
+rm(imem_realdata)
+primid <- unique(realdata$surveycode)
 
 ###################### Application results for different dMEM clustering methods#########################
 ## topk works the best

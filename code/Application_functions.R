@@ -52,7 +52,7 @@ imem_dayn <- function(outname,type,subtype,primid,nfinsrc,qthresh=NULL,dat)
 }
 
 # dMEM function given subtype, primary ID, and dataset for supplementary ids with > 5 observations
-DMEM_dayn <- function(outname,type="TRIP",subtype,primid,mtd,m=10,max_num_cluster=10,dat,lst=F){
+DMEM_dayn <- function(outname,type="TRIP",subtype,primid,mtd,m=10,max_num_cluster=10,dat,result='app'){
   # create primary source information vector
   prim_dat <- typeid(dat,primid,type,subtype,varnms=c("surveycode",outname))
   prim_out <- prim_dat[[outname]]
@@ -82,9 +82,35 @@ DMEM_dayn <- function(outname,type="TRIP",subtype,primid,mtd,m=10,max_num_cluste
       suppdat_all <- append(suppdat_all,supp_dat)
     }
   }
-  out <- DMEM_app(primary=prim_info,supple_mean=suppmeans,supple_sd=suppsds,supple_N=suppNs,supple=suppdat_all,
-                  mtd=mtd,m=m,max_num_cluster=max_num_cluster)
+  if (result =='app'){
+    out <- DMEM_app(primary=prim_info,supple_mean=suppmeans,supple_sd=suppsds,supple_N=suppNs,supple=suppdat_all,
+                    mtd=mtd,m=m,max_num_cluster=max_num_cluster)
+  } else if (result =='qc'){
+    out <- DMEM_cp_margweight(primary=prim_info,supple_mean=suppmeans,supple_sd=suppsds,supple_N=suppNs)
+  }
+  
   return(out)
+}
+
+# dMEM change point and marginal weights
+DMEM_cp_margweight <- function(primary,supple_mean,supple_sd,supple_N){
+  # this is change-point detector
+  margmems <- lapply(1:length(supple_N),function(x) {mem_calc(prim=primary
+                                                              ,means=supple_mean[x],sds=supple_sd[x],
+                                                              Ns=supple_N[x],prior='pi_e')} )
+  margscores <- sapply(1:length(margmems), function(x){ margmems[[x]]$memlist$postwts[2] })
+  
+  change_point_model <- cpt.mean(sort(margscores,decreasing = T), penalty = "None", method = 'AMOC')
+  change_point <- cpts(change_point_model)
+  
+  hard_threshold <- 0
+  cutoff <- max(which(sort(margscores,decreasing = T) >= hard_threshold),1)
+  if (cutoff < change_point){
+    change_point <- cutoff
+  }
+  
+  
+  return(list(as.character(change_point),as.character(length(supple_mean)),paste0(round(sort(margscores,decreasing = T),digits = 3),collapse = ',')))
 }
 
 
@@ -109,6 +135,17 @@ credint.imem <- function(imemobj,cred.lev=0.95)
   names(out) <- c("imem.postmean","imem.postsd","imem.lwr","imem.upr","imem.esss")
   
   return(out)
+}
+
+boa.hpd <- function(x, alpha){
+  ###Calculate HPD Intervals given vector of values and alpha
+  n <- length(x)
+  m <- max(1, ceiling(alpha * n))
+  y <- sort(x)
+  a <- y[1:m]
+  b <- y[(n - m + 1):n]
+  i <- order(b - a)[1]
+  structure(c(a[i], b[i]), names = c("Lower Bound", "Upper Bound"))
 }
 
 # calculate posterior credible intervals from dmem output

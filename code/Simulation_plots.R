@@ -9,7 +9,7 @@ library(ggtext)
 ################################# scenario I #######################################
 dir.path <- "../data/Simulation results/Scenario I/"
 library(plyr)
-filename <- list.files(path = dir.path,pattern = '.csv')
+filename <- list.files(path = "../data/Simulation results/Scenario I/",pattern = '.csv')
 detach(package:plyr)
 
 postvar <- c()
@@ -400,22 +400,6 @@ grid.arrange(arrangeGrob(s1var.plot,s1bias.plot,s1RMSE.plot,
                          '),
              heights=c(2.9,2.9,3.2),
              nrow=3)
-
-grid.arrange(arrangeGrob(s1var.plot,s1bias.plot,s1RMSE.plot,
-                         nrow=1,heights=2.9,
-                         bottom = '(a) Scenario I
-                         '),
-             arrangeGrob(s4var.plot,s4bias.plot,s4RMSE.plot,legend,
-                         layout_matrix=rbind(c(1,2,3),c(NA,4,NA)),
-                         nrow=2,heights=c(2.9,0.4),
-                         bottom = '\n (b) Scenario II
-                         '),
-             heights=c(2.9,3.2),
-             nrow=2)
-
-grid.arrange(s1esss.plot,s2esss.plot,s4esss.plot,legend,
-             layout_matrix=rbind(c(1,1,2,2),c(NA,3,3,NA),c(NA,4,4,NA)),
-             nrow=3,heights=c(2.9,2.9,0.4))
 
 grid.arrange(arrangeGrob(s1esss.plot,s2esss.plot,
                          nrow=1,heights=2.9),

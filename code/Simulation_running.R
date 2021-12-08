@@ -117,9 +117,6 @@ simulation_random_cluster(1,perfect=F, max_num_cluster=10)
 ################### Varying degrees of nonexchangeability  ##################
 #############################################################################
 
-source('iMEM_functions_Brown etal.R')
-source('clustering_functions.R')
-
 # primary source
 true_data <- rnorm(100000,0,sd=1) # The true distribution N(0,sd=1) for primary data source
 
@@ -249,7 +246,7 @@ simulation_proportion <- function(prop,num_supple,mtd='dMEM'){
   ###################################
   # prop: proportion of nonexchangeable sources
   # num_supple: total number of supplementary sources
-  # mtd: iMEM (q=10) or dMEM
+  # mtd: iMEM (q=10) or dMEM (random averaging with m = 10)
   ###################################
   
   # results are generated from 1000 random simulations
