@@ -1,2 +1,2 @@
-# Data-driven-MEM
+# Data-driven Multisource Exchangeability Models
 Data-driven Multisource Exchangeability Models
